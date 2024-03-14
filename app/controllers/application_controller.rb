@@ -10,6 +10,10 @@ class ApplicationController < ActionController::API
   private
   def authenticate_user
     token = request.headers['Authorization']&.split(' ')&.last
+    if token.nil?
+      return render json: { error: 'Unauthorized' }, status: :unauthorized
+    end
+    
     user = User.find_by(authentication_token: token)
     unless user
       render json: { error: 'Unauthorized' }, status: :unauthorized
