@@ -1,21 +1,16 @@
 class ApplicationController < ActionController::API
   before_action :authenticate_user
 
-  protected
-  def current_user
-    token = request.headers['Authorization']&.split(' ')&.last
-    user = User.find_by(authentication_token: token)
-  end
-
   private
   def authenticate_user
     token = request.headers['Authorization']&.split(' ')&.last
     if token.nil?
       return render json: { error: 'Unauthorized' }, status: :unauthorized
     end
-    
-    user = User.find_by(authentication_token: token)
-    unless user
+
+    @current_user = User.find_by(authentication_token: token)
+
+    unless current_user
       render json: { error: 'Unauthorized' }, status: :unauthorized
     end
   end

@@ -1,5 +1,5 @@
 class HomeController < ApplicationController
   def index
-    render json: {message: "You are inside the application."}
+    render json: {message: "Hi, #{current_user.email}, You are inside the application."}
   end
 end

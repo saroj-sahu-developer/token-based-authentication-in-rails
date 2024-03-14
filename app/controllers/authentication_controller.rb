@@ -46,7 +46,7 @@ class AuthenticationController < ApplicationController
   end
 
   def logout
-    current_user.update!(authentication_token: nil)
+    @current_user.update!(authentication_token: nil)
     render json: { message: 'Logged out successfully' }
   end
 
