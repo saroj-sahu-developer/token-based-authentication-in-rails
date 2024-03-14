@@ -1,24 +1,6 @@
 # README
-
-This README would normally document whatever steps are necessary to get the
-application up and running.
-
-Things you may want to cover:
-
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+<p>
+  The repo contains token based authentication for rails application. <br>
+  The main branch has custom authentication process where users table has an additional column authentication_token to remember the token in a database.
+  Jwt_authentication branch has authentication process using JWT token.(Uses gem 'jwt')
+</p>
