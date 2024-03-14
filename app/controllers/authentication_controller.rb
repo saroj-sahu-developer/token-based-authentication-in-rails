@@ -1,53 +1,36 @@
 class AuthenticationController < ApplicationController
-  skip_before_action :authenticate_user, except: [:logout]
+  skip_before_action :authorize_request
 
   def register
-    user = User.new(user_params)
-
-    # Generate a authentication token
-    authentication_token = SecureRandom.hex
-    while User.exists?(authentication_token: authentication_token)
-      authentication_token = SecureRandom.hex
-    end
-
-    user.authentication_token = authentication_token
-
-    if user.save
+    @user = User.new(user_params)
+    if @user.save
+      token = JsonWebToken.encode(user_id: @user.id)
+      time = Time.now + 24.hours.to_i
       render json:  {
-                      message: 'User registered successfully',
-                      token: user.authentication_token
+                      message: "User logged in successfully",
+                      token: token,
+                      valid_till: time.strftime("%m-%d-%Y %H:%M"),
                     },
-                    status: :created
+                    status: :ok
     else
-      render json: { error: user.errors.full_messages }, status: :unprocessable_entity
+      render json: { errors: @user.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
   def login
-    user = User.find_by(email: params[:email])
-    if user&.authenticate(params[:password])
-      # Generate a authentication token
-      authentication_token = SecureRandom.hex
-      while User.exists?(authentication_token: authentication_token)
-        authentication_token = SecureRandom.hex
-      end
-
-      user.update!(authentication_token: authentication_token)
-      # Only one login allowed for a single user
-
+    @user = User.find_by_email(params[:email])
+    if @user&.authenticate(params[:password])
+      token = JsonWebToken.encode(user_id: @user.id)
+      time = Time.now + 24.hours.to_i
       render json:  {
-                      message: 'User logged in successfully',
-                      token: authentication_token
+                      message: "User logged in successfully",
+                      token: token,
+                      valid_till: time.strftime("%m-%d-%Y %H:%M"),
                     },
                     status: :ok
     else
-      render json: { error: 'Invalid email or password' }, status: :unauthorized
+      render json: { error: 'unauthorized' }, status: :unauthorized
     end
-  end
-
-  def logout
-    current_user.update!(authentication_token: nil)
-    render json: { message: 'Logged out successfully' }
   end
 
   private
